@@ -49,7 +49,8 @@ npx skills add juliamuiruri4/brainmaxxing
 
 ## Canvas extension
 
-The `extensions/brainmax-canvas/` directory contains an optional GitHub Copilot App canvas extension that provides an interactive dashboard with domain buttons, progress tracking, and visual report generation.
+Coming soon.
+<!-- The `extensions/brainmax-canvas/` directory contains an optional GitHub Copilot App canvas extension that provides an interactive dashboard with domain buttons, progress tracking, and visual report generation. -->
 
 ## License
 
