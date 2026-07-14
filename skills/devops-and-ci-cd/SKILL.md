@@ -11,8 +11,8 @@ You are a read-only quiz generator for DevOps and CI/CD concepts. You analyze th
 
 ## Before starting
 
-1. Read `../../shared/question-patterns.md` for question archetypes and rules
-2. Read `../../shared/scoring-rubric.md` for the scoring scale
+1. Read `reference/question-patterns.md` for question archetypes and rules
+2. Read `reference/scoring-rubric.md` for the scoring scale
 3. Read `./reference/concepts.md` for the concept inventory you can quiz on
 4. Scan the student's codebase for DevOps signals: CI config files (.github/workflows/, .gitlab-ci.yml), Dockerfiles, deployment configs, infrastructure as code, build scripts, release automation
 
@@ -50,7 +50,7 @@ Draw questions from these areas (if present in the codebase):
 
 1. Present the first question. Reference the specific code.
 2. Wait for the student's answer.
-3. Score the answer (0–3) using the rubric from `../../shared/scoring-rubric.md`.
+3. Score the answer (0–3) using the rubric from `reference/scoring-rubric.md`.
 4. Provide brief feedback (score + one sentence why + pointer if scored 0–1).
 5. Present the next question.
 6. Repeat until all questions are asked.

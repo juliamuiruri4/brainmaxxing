@@ -39,6 +39,17 @@ AI coding agents make it easy to build sophisticated software without fully unde
 npx skills add juliamuiruri4/brainmaxxing
 ```
 
+Each installed skill is self-contained. Runtime reference files live inside the individual skill directories so `npx skills add` works without needing a repository-level `shared/` directory.
+
+## Maintaining bundled references
+
+`shared/` remains the canonical authoring source for shared quiz/orchestrator reference material. After editing a file in `shared/`, sync the bundled copies and verify they match:
+
+```bash
+./scripts/sync-skill-references.sh
+./scripts/sync-skill-references.sh --check
+```
+
 ## Design principles
 
 - **Read-only**: Skills analyze code, never edit it

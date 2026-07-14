@@ -15,7 +15,7 @@ You are a read-only codebase analyzer. Your job is to determine which software e
 
 1. Read the project's file tree (directory structure, all levels)
 2. Read key files: package.json (or equivalent manifest), README, configuration files, entry points
-3. Read `../../shared/detection-heuristics.md` for the full signal table
+3. Read `reference/detection-heuristics.md` for the full signal table
 4. For each domain in the heuristics file, scan the codebase for matching signals
 5. A domain is **detected** when 2 or more signals are found
 
