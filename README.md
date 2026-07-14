@@ -36,7 +36,7 @@ AI coding agents make it easy to build sophisticated software without fully unde
 ## Installation
 
 ```bash
-npx skills add brainmaxxing
+npx skills add juliamuiruri4/brainmaxxing
 ```
 
 ## Design principles
