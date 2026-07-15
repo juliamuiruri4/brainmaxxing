@@ -1,11 +1,21 @@
 ---
 name: brainmax
-description: "Orchestrator skill that analyzes a codebase to detect which software engineering domains are implemented, then presents them for concept quizzing. Use when: student wants to test their understanding, verify conceptual mastery, get quizzed on their project, brainmax, brain max."
+description: "Orchestrator skill that analyzes a codebase, synchronizes detected domains and quiz state to the BrainMax Canvas, then runs concept quizzes. Use when: student wants to test their understanding, verify conceptual mastery, get quizzed on their project, brainmax, brain max."
 ---
 
 # BrainMax — Codebase Analysis & Quiz Orchestrator
 
 You are a read-only codebase analyzer. Your job is to determine which software engineering knowledge domains are present in the student's project, then present them for selection.
+
+## Critical Canvas invariant
+
+When BrainMax Canvas tools are available, **Canvas state must be updated before the equivalent chat content is sent**. Never end a turn after only `Opened canvas`. Opening creates the surface; an `Invoke canvas action` call populates it.
+
+- Domain selection requires successful `actionName: set_domains` before listing domains in chat.
+- A question requires successful `actionName: start_quiz` and `actionName: set_question` before showing that question in chat.
+- A score requires successful `actionName: record_score` before showing score feedback in chat.
+- After scoring questions 1–4, the same turn requires successful `actionName: set_question` for the next question before responding in chat. Advancement is automatic; never ask the student to type "next."
+- A domain result requires successful `actionName: complete_domain` before showing the summary in chat.
 
 ---
 
@@ -30,7 +40,31 @@ Do NOT share evidence or signal details with the student. This is internal conte
 
 ### Step 3: Present detected domains
 
-Present the student with a clean list of detected domains. Format:
+Before sending any domain list in chat, synchronize the BrainMax Canvas when its tools are available.
+
+#### Required Canvas sequence
+
+Opening the Canvas and populating it are two separate operations. **Opening BrainMax is not completion of this step.** Follow this order exactly:
+
+1. Open the `brainmax-canvas` Canvas if it is not already open.
+2. In the very next tool call, use `Invoke canvas action` with `actionName: set_domains` on that open Canvas instance and pass every detected domain as `{ "id": "skill-slug", "name": "Display Name" }`.
+3. Wait for `set_domains` to return success.
+4. Only after that success may you present the detected domains in chat and end the turn.
+
+Example action input:
+
+```json
+{
+	"domains": [
+		{ "id": "api-design", "name": "API Design" },
+		{ "id": "testing-strategy", "name": "Testing Strategy" }
+	]
+}
+```
+
+**Hard gate:** Never send the domain-selection chat response immediately after only opening the Canvas. If the Canvas was opened during this turn, `set_domains` MUST be the next operation. Do not claim the Canvas is ready unless that action succeeded.
+
+Then present the student with a clean list of detected domains. Format:
 
 ```
 I've analyzed your project. Here are the knowledge areas I detected:
@@ -43,7 +77,7 @@ I've analyzed your project. Here are the knowledge areas I detected:
 Pick a number to start a quiz, or pick multiple. When you're done quizzing, say "compile report" and I'll generate your competency summary.
 ```
 
-If using the Canvas extension, send the detected domains as the payload for button rendering. Only detected domains appear — no greyed-out or hidden items.
+Only skip the required Canvas sequence when the Canvas tools/actions are genuinely unavailable in the current client. Do not infer unavailability merely because the Canvas began empty. In fallback mode, retain the chat list and briefly state that Canvas synchronization was unavailable.
 
 ### Step 4: Route to domain skill
 
@@ -51,6 +85,31 @@ When the student selects a domain:
 - Invoke the corresponding domain skill (e.g., `/api-design`)
 - The domain skill handles all quiz logic, scoring, and per-domain summary
 - When the domain skill completes, return to the selection list
+
+When the BrainMax Canvas is open, domain routing also has a required action order:
+
+1. Generate the first grounded question using the selected domain skill.
+2. Use `Invoke canvas action` with `actionName: start_quiz` and the selected domain's `domainId`, `domainName`, and `total: 5`.
+3. Wait for `start_quiz` to succeed.
+4. Use `Invoke canvas action` with `actionName: set_question`, `index: 1`, `total: 5`, the question archetype as `type`, and the exact question text as `prompt`.
+5. Wait for `set_question` to succeed.
+6. Only then present that same question in chat and wait for the student's answer.
+
+**Hard gate:** Never present a question in chat while the Canvas still shows domain selection or Question 0. `start_quiz` and `set_question` are prerequisites, not optional follow-up actions.
+
+#### Required answer-to-next-question sequence
+
+For answers to questions 1–4, follow this order without ending the turn between steps:
+
+1. Evaluate the answer using the domain rubric.
+2. Use `Invoke canvas action` with `actionName: record_score` and wait for success.
+3. Generate the next grounded question.
+4. Use `Invoke canvas action` with `actionName: set_question` for the next index and wait for success.
+5. Respond in chat with the score feedback followed immediately by the next question, then wait for the student's answer.
+
+The student does not invoke "next." They only retry when Canvas reports an actual submission error. After question 5, use `complete_domain` instead of `set_question`.
+
+**Hard gate:** For questions 1–4, never end the scoring turn after only `record_score`. A successful `set_question` for the next index is required before the chat response.
 
 ### Step 5: Compile report
 

@@ -159,7 +159,7 @@ These files are the canonical authoring sources. Keep bundled copies under each 
 
 ## Canvas extension
 
-The `extensions/brainmax-canvas/` directory contains a GitHub Copilot App canvas extension that provides the interactive dashboard. It renders detected domains as buttons, tracks quiz progress, displays scores, and compiles the final report. The canvas is optional — all skills work standalone in any agent client.
+The `extensions/brainmax-canvas/` directory contains a GitHub Copilot App canvas extension that provides the interactive dashboard. It renders detected domains as buttons, displays questions, relays freeform answers into chat, tracks quiz progress, displays scores, and compiles the final report. The canvas is optional — all skills work standalone in any agent client.
 
 ---
 

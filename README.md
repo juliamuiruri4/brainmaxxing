@@ -60,8 +60,9 @@ Each installed skill is self-contained. Runtime reference files live inside the 
 
 ## Canvas extension
 
-Coming soon.
-<!-- The `extensions/brainmax-canvas/` directory contains an optional GitHub Copilot App canvas extension that provides an interactive dashboard with domain buttons, progress tracking, and visual report generation. -->
+The optional GitHub Copilot App canvas launches when `/brainmax` publishes its detected domains. Students can select a domain, read each question, submit freeform answers, follow their score, and review the compiled report from the canvas. Answers are relayed into the Copilot session; question generation and rubric scoring remain with the domain skills.
+
+If the host does not open the canvas when `set_domains` is invoked, open BrainMax once from the Copilot App. The current quiz state will then stream into it automatically.
 
 ## License
 

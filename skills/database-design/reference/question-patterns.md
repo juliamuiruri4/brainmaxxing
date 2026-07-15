@@ -73,3 +73,22 @@ Generate exactly 5 questions per domain quiz using this distribution:
 - 1 Debug question (ONLY if a real issue exists — otherwise replace with a Predict or Refactor)
 
 Ask questions one at a time. Wait for the student's answer before asking the next question.
+
+---
+
+## Canvas synchronization
+
+The BrainMax Canvas is optional. When its actions are available, keep it synchronized with the chat quiz; when they are unavailable, continue the quiz entirely in chat.
+
+Canvas actions are prerequisites for chat output, not optional follow-up work. Wait for each action to succeed before continuing.
+
+1. Before presenting the first question, invoke `start_quiz` with the domain skill slug as `domainId`, its display name as `domainName`, and `total: 5`, then wait for success.
+2. Before presenting each question in chat, invoke `set_question` with its 1-based `index`, `total: 5`, archetype as `type`, and the exact same question text as `prompt`, then wait for success. Never leave the Canvas at domain selection or Question 0 while a question is visible in chat.
+3. Accept the student's freeform answer from either chat or the Canvas answer form. Evaluate both sources with the same rubric and flow.
+4. Immediately after evaluating an answer, invoke `record_score` with the question `index`, numeric `score`, and the same one-sentence `feedback` shown in chat, then wait for success.
+5. For questions 1–4, continue in the **same turn**: generate the next grounded question, invoke `set_question` for the next index, wait for success, and only then respond in chat with the score feedback followed by the next question. Do not ask the student to type "next" and do not end the turn after only `record_score`.
+6. The previous score remains visible on the Canvas while the next question is active. It is cleared automatically when the student submits the next answer.
+7. If answer submission fails, keep the current question active and let the student retry. Retry is only for an actual error; it is not normal quiz navigation.
+8. After question 5 is scored, invoke `complete_domain` with the domain result and wait for success before returning control to the orchestrator.
+
+Canvas actions mirror quiz state only. Never move question generation or scoring into the Canvas frontend.
