@@ -32,65 +32,93 @@ All domain skills are read-only — they analyze code but never modify it.
 brainmaxxing/
 ├── skills/
 │   ├── brainmax/
-│   │   └── SKILL.md
+│   │   ├── SKILL.md
+│   │   └── reference/
+│   │       └── detection-heuristics.md
 │   ├── api-design/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── database-design/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── system-architecture/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── implementation-patterns/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── testing-strategy/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── security-fundamentals/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── devops-and-ci-cd/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── error-handling-and-resilience/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── requirements-and-scope/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── domain-modeling/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   ├── ui-and-frontend/
 │   │   ├── SKILL.md
 │   │   └── reference/
-│   │       └── concepts.md
+│   │       ├── concepts.md
+│   │       ├── question-patterns.md
+│   │       └── scoring-rubric.md
 │   └── observability/
 │       ├── SKILL.md
 │       └── reference/
-│           └── concepts.md
+│           ├── concepts.md
+│           ├── question-patterns.md
+│           └── scoring-rubric.md
 ├── shared/
 │   ├── scoring-rubric.md
 │   ├── question-patterns.md
 │   └── detection-heuristics.md
+├── scripts/
+│   └── sync-skill-references.sh
 ├── AGENTS.md
 ├── README.md
 └── LICENSE
 ```
 
-No build step. The `skills/` directory is the source of truth and the install target.
+No build step. The `skills/` directory is the source of truth and the install target. Each installable skill must keep any runtime reference files inside its own directory.
 
 ---
 
@@ -109,11 +137,13 @@ description: One-sentence description of what the skill quizzes.
 
 3. The skill body must:
    - Read the codebase (never modify it)
-   - Use question patterns from `../../shared/question-patterns.md`
-   - Score using the rubric from `../../shared/scoring-rubric.md`
+   - Use question patterns from `reference/question-patterns.md`
+   - Score using the rubric from `reference/scoring-rubric.md`
    - Only generate Debug questions when a real, verifiable issue exists in the code
 
-4. Follow the quiz flow: present questions one at a time, wait for answers, score each, then produce a domain summary.
+4. Copy `shared/question-patterns.md` and `shared/scoring-rubric.md` into that skill's `reference/` directory so the installed skill stays self-contained.
+
+5. Follow the quiz flow: present questions one at a time, wait for answers, score each, then produce a domain summary.
 
 ---
 
@@ -122,6 +152,8 @@ description: One-sentence description of what the skill quizzes.
 - `shared/scoring-rubric.md` — 0–3 scoring scale used by all domain skills
 - `shared/question-patterns.md` — four question archetypes (Explain, Predict, Refactor, Debug)
 - `shared/detection-heuristics.md` — file patterns and signals the orchestrator uses to detect domains
+
+These files are the canonical authoring sources. Keep bundled copies under each skill's `reference/` directory in sync by running `./scripts/sync-skill-references.sh`, then verify with `./scripts/sync-skill-references.sh --check`.
 
 ---
 

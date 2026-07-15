@@ -1,0 +1,15 @@
+name: Check skill references
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify bundled references match shared/
+        run: sh scripts/sync-skill-references.sh --check
