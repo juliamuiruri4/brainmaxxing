@@ -12,10 +12,11 @@ You are a read-only codebase analyzer. Your job is to determine which software e
 When BrainMax Canvas tools are available, **Canvas state must be updated before the equivalent chat content is sent**. Never end a turn after only `Opened canvas`. Opening creates the surface; an `Invoke canvas action` call populates it.
 
 - Domain selection requires successful `actionName: set_domains` before listing domains in chat.
-- A question requires successful `actionName: start_quiz` and `actionName: set_question` before showing that question in chat.
+- The first question requires successful `actionName: start_quiz` with that exact question in `firstQuestion` before showing it in chat. Questions 2–5 require successful `actionName: set_question`.
 - A score requires successful `actionName: record_score` before showing score feedback in chat.
 - After scoring questions 1–4, the same turn requires successful `actionName: set_question` for the next question before responding in chat. Advancement is automatic; never ask the student to type "next."
-- A domain result requires successful `actionName: complete_domain` before showing the summary in chat.
+- A domain result requires successful `actionName: complete_domain`, including non-empty `strongestArea` and `gap`, before showing the summary in chat.
+- A competency report requires successful `actionName: show_report` before showing the report in chat.
 
 ---
 
@@ -85,17 +86,16 @@ When the student selects a domain:
 - Invoke the corresponding domain skill (e.g., `/api-design`)
 - The domain skill handles all quiz logic, scoring, and per-domain summary
 - When the domain skill completes, return to the selection list
+- A Canvas message such as `Start the API Design quiz.` is the student's selection. Route immediately; never ask them to select or confirm the domain again.
 
 When the BrainMax Canvas is open, domain routing also has a required action order:
 
 1. Generate the first grounded question using the selected domain skill.
-2. Use `Invoke canvas action` with `actionName: start_quiz` and the selected domain's `domainId`, `domainName`, and `total: 5`.
+2. Use `Invoke canvas action` with `actionName: start_quiz`, the selected domain's `domainId`, `domainName`, and `total: 5`, plus `firstQuestion` containing `index: 1`, `total: 5`, its archetype as `type`, and the exact question text as `prompt`.
 3. Wait for `start_quiz` to succeed.
-4. Use `Invoke canvas action` with `actionName: set_question`, `index: 1`, `total: 5`, the question archetype as `type`, and the exact question text as `prompt`.
-5. Wait for `set_question` to succeed.
-6. Only then present that same question in chat and wait for the student's answer.
+4. Only then present that same question in chat and wait for the student's answer.
 
-**Hard gate:** Never present a question in chat while the Canvas still shows domain selection or Question 0. `start_quiz` and `set_question` are prerequisites, not optional follow-up actions.
+**Hard gate:** Never present Question 1 in chat while the Canvas still shows domain selection or a preparing state. A successful `start_quiz` containing the exact first question is a prerequisite, not optional follow-up work.
 
 #### Required answer-to-next-question sequence
 
@@ -107,7 +107,7 @@ For answers to questions 1–4, follow this order without ending the turn betwee
 4. Use `Invoke canvas action` with `actionName: set_question` for the next index and wait for success.
 5. Respond in chat with the score feedback followed immediately by the next question, then wait for the student's answer.
 
-The student does not invoke "next." They only retry when Canvas reports an actual submission error. After question 5, use `complete_domain` instead of `set_question`.
+The student does not invoke "next." They only retry when Canvas reports an actual submission error. After question 5, use `complete_domain` instead of `set_question`. Pass `domainId`, `domainName`, points earned as `total`, maximum points as `max`, `percentage`, a non-empty `strongestArea` derived from the highest-scoring question type or concept, and a non-empty `gap` derived from the weakest concept or the next concept to deepen when there is no low score.
 
 **Hard gate:** For questions 1–4, never end the scoring turn after only `record_score`. A successful `set_question` for the next index is required before the chat response.
 
@@ -115,7 +115,14 @@ The student does not invoke "next." They only retry when Canvas reports an actua
 
 When the student says "compile report" (or equivalent):
 1. Gather all completed domain scores
-2. Produce the competency report:
+2. Build the competency report using the structure below.
+3. When BrainMax Canvas actions are available, invoke `show_report` with the complete report payload: `overallScore`, `overallMax`, `overallPercentage`, `domains`, `strongestAreas`, `priorityAreas`, `recommendations`, and `nextChallenge`.
+4. Wait for `show_report` to succeed.
+5. Only then show the same competency report in chat.
+
+**Hard gate:** Never respond to a Canvas `Compile report` message with a chat-only report. When `show_report` is available, Canvas synchronization is required before the report text is sent.
+
+**Report structure:**
 
 **Report structure:**
 - **Overall score**: Total points earned / total points possible (percentage)
