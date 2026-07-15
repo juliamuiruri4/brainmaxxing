@@ -12,8 +12,28 @@ AI coding agents make it easy to build sophisticated software without fully unde
 2. The agent analyzes your codebase and detects which knowledge domains are implemented
 3. You pick a domain (API Design, Database Design, Testing, etc.)
 4. The agent quizzes you with 5 questions grounded in *your actual code*
+    
+    **Rooted in [Bloom's Taxonomy](https://en.wikipedia.org/wiki/Bloom%27s_taxonomy)**, questions escalate through cognitive levels:
+
+    - **Explain** (Remember/Understand) → *describe what this **code does** and **why it exists***
+    - **Predict** (Analyze) → ***trace behavior** through code without running it*
+    - **Refactor** (Apply/Evaluate) → *identify **tradeoffs** and **improve** what's there*
+    - **Debug** (Analyze/Evaluate) → *spot a real issue and **reason about its consequences***
+
 5. Each answer is scored on a 0–3 rubric
-6. When done, say "compile report" to get your competency summary with personalized study recommendations
+
+    Evaluation and scoring mirrors the progession above: 
+
+    - 0 → no recognition
+    - 1 → names it but can't apply it
+    - 2 → explains and reasons about change
+    - 3 → evaluates tradeoffs and could teach it. 
+
+6. When done, "compile report" to get your competency summary with personalized study recommendations
+
+    <a href="https://gh.io/brainmaxxing/demo">
+        <img src="assets/brainmaxxing-poster-dark.png" alt="BrainMaxxing Demo Preview" width="800" />
+    </a>
 
 ## Skills
 
